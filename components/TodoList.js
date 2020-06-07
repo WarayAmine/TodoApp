@@ -2,7 +2,7 @@ import React from "react";
 import {StyleSheet, Text, View} from "react-native";
 import {colors} from '../Colors';
 
-export default TodoList = ({list}) => {
+export const TodoList = ({list}) => {
     const completedCount = list.todos.filter(todo => todo.completed).length;
     const remainingCount = list.todos.filter(todo => !todo.completed).length;
 

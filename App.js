@@ -3,7 +3,7 @@ import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-n
 import {colors} from './Colors';
 import tempData from "./tempData";
 import {AntDesign} from '@expo/vector-icons';
-import TodoList from "./components/TodoList";
+import {TodoList} from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
 
 export default class App extends React.Component {
@@ -20,7 +20,7 @@ export default class App extends React.Component {
             <View style={styles.container}>
                 <Modal animationType="slide" visible={this.state.addTodoVisible}
                        onRequestClose={() => this.toggleAddTodoModal()}>
-                    <AddListModal/>
+                    <AddListModal closeModal={() => this.toggleAddTodoModal()}/>
                 </Modal>
                 <View style={{flexDirection: "row"}}>
                     <View style={styles.divider}/>
