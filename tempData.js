@@ -1,5 +1,6 @@
 export default tempData = [
     {
+        id: 1,
         name: "Plan a trip",
         color: "#6775d0",
         todos: [
@@ -22,6 +23,7 @@ export default tempData = [
         ]
     },
     {
+        id: 2,
         name: "React native",
         color: "#51c187",
         todos: [
@@ -44,6 +46,7 @@ export default tempData = [
         ]
     },
     {
+        id: 3,
         name: "React JS",
         color: "#2f8d9e",
         todos: [
