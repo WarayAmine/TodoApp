@@ -40,7 +40,7 @@ export default class AddListModal extends Component {
 
     render() {
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="padding">
+            <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : null}>
                 <TouchableOpacity style={{position: "absolute", top: 32, right: 32}} onPress={this.props.closeModal}>
                     <AntDesign name="close" size={24} color={colors.black}/>
                 </TouchableOpacity>
