@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 import {
     FlatList,
     KeyboardAvoidingView,
@@ -8,7 +8,9 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    Keyboard
+    Keyboard,
+    Animated,
+    Platform
 } from 'react-native';
 import {colors} from "../Colors";
 import {AntDesign, Ionicons} from '@expo/vector-icons';
@@ -18,7 +20,7 @@ export default class TodoModal extends Component {
         newTodo: ""
     }
 
-    toggleTodoCompleted = index => {
+    toggleTodo = index => {
         let list = this.props.list;
         list.todos[index].completed = !list.todos[index].completed;
 
@@ -27,12 +29,21 @@ export default class TodoModal extends Component {
 
     addTodo = () => {
         let list = this.props.list;
-        list.todos.push({title: this.state.newTodo, completed: false});
+
+        if (!list.todos.some(todo => todo.title === this.state.newTodo.trim()) && this.state.newTodo.trim() !== '') {
+            list.todos.push({title: this.state.newTodo.trim(), completed: false});
+            this.props.updateList(list);
+        }
+
+        this.setState({newTodo: ""});
+        Keyboard.dismiss();
+    }
+
+    deleteTodo = index => {
+        let list = this.props.list;
+        list.todos.splice(index, 1);
 
         this.props.updateList(list);
-        this.setState({newTodo: ""});
-
-        Keyboard.dismiss();
     }
 
     render() {
@@ -58,17 +69,23 @@ export default class TodoModal extends Component {
                     </View>
                 </View>
 
-                <View style={[styles.section, {flex: 3}]}>
+                <View style={[styles.section, {flex: 3, marginVertical: 16}]}>
                     <FlatList data={list.todos}
-                              renderItem={({item, index}) => this.renderTodo(item, index)}
-                              keyExtractor={(_, index) => index.toString()}
-                              contentContainerStyle={{paddingHorizontal: 32, paddingVertical: 64}}
+                              renderItem={({item, index}) =>
+                                  <TodoItem todo={item}
+                                            index={index}
+                                            toggleTodo={this.toggleTodo}
+                                            deleteTodo={this.deleteTodo}
+                                  />
+                              }
+                              keyExtractor={item => item.title}
                               showsVerticalScrollIndicator={false}
                     />
                 </View>
 
                 <KeyboardAvoidingView style={[styles.section, styles.footer]}
-                                      behavior={Platform.OS === "ios" ? "padding" : null}>
+                                      behavior={Platform.OS === "ios" ? "padding" : null}
+                >
                     <TextInput style={[styles.input, {borderColor: list.color}]}
                                onChangeText={text => this.setState({newTodo: text})}
                                value={this.state.newTodo}/>
@@ -80,30 +97,46 @@ export default class TodoModal extends Component {
             </SafeAreaView>
         );
     }
+}
 
-    renderTodo(todo, index) {
-        return (
+function TodoItem(props) {
+    const todo = props.todo;
+    const index = props.index;
+    const [deleteIconIsVisible, toggleDeleteIcon] = useState(false);
+
+    return (
+        <View style={[styles.todoContainer, {paddingHorizontal: 32}]}>
             <View style={styles.todoContainer}>
-                <TouchableOpacity onPress={() => this.toggleTodoCompleted(index)}>
+                <TouchableOpacity onPress={() => props.toggleTodo(index)}>
                     <Ionicons name={todo.completed ? "ios-square" : "ios-square-outline"}
                               size={24} color={colors.gray}
                               style={{width: 32}}
                     />
                 </TouchableOpacity>
-
-                <Text
-                    style={[
-                        styles.todo,
-                        {
-                            textDecorationLine: todo.completed ? "line-through" : "none",
-                            color: todo.completed ? colors.gray : colors.black
-                        }
-                    ]}>
-                    {todo.title}
-                </Text>
+                <TouchableOpacity onPress={() => toggleDeleteIcon(!deleteIconIsVisible)}
+                                  style={{minWidth: 24, minHeight: 24}}>
+                    <Text style={[styles.todo, {
+                        textDecorationLine: todo.completed ? "line-through" : "none",
+                        color: todo.completed ? colors.gray : colors.black
+                    }]}>
+                        {todo.title}
+                    </Text>
+                </TouchableOpacity>
             </View>
-        )
-    }
+
+            <View style={styles.todoContainer}>
+                {
+                    deleteIconIsVisible &&
+                    <TouchableOpacity style={{alignSelf: "flex-end"}} onPress={() => {
+                        props.deleteTodo(index);
+                        toggleDeleteIcon(!deleteIconIsVisible);
+                    }}>
+                        <AntDesign name="close" size={24} color={colors.gray}/>
+                    </TouchableOpacity>
+                }
+            </View>
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -152,13 +185,14 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     todoContainer: {
-        paddingVertical: 16,
+        paddingVertical: 8,
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     todo: {
         color: colors.black,
         fontWeight: "bold",
-        fontSize: 16
+        fontSize: 16,
     }
 })

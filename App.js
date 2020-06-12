@@ -1,7 +1,6 @@
 import React from 'react';
 import {ActivityIndicator, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from './Colors';
-import tempData from "./tempData";
 import {AntDesign} from '@expo/vector-icons';
 import TodoList from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
@@ -12,16 +11,17 @@ export default class App extends React.Component {
         addTodoVisible: false,
         lists: [],
         user: {},
-        loading: true
+        loading: true,
+        firebase: null
     }
 
     componentDidMount() {
-        firebase = new Fire((error, user) => {
+        this.state.firebase = new Fire((error, user) => {
             if (error) {
                 return alert("Uh oh, something went wrong with firebase");
             }
 
-            firebase.getLists(lists => {
+            this.state.firebase.getLists(lists => {
                 this.setState({lists, user}, () => {
                     this.setState({loading: false});
                 })
@@ -32,7 +32,7 @@ export default class App extends React.Component {
     }
 
     componentWillUnmount() {
-        firebase.detach();
+        this.state.firebase.detach();
     }
 
     toggleAddTodoModal() {
@@ -44,15 +44,15 @@ export default class App extends React.Component {
     }
 
     addList = list => {
-        this.setState({lists: [...this.state.lists, {...list, id: this.state.lists.length + 1, todos: []}]});
+        this.state.firebase.addList({
+            name: list.name,
+            color: list.color,
+            todos: []
+        })
     }
 
     updateList = list => {
-        this.setState({
-            lists: this.state.lists.map(item => {
-                return item.id === list.id ? list : item;
-            })
-        })
+        this.state.firebase.updateList(list);
     }
 
     render() {
@@ -69,13 +69,10 @@ export default class App extends React.Component {
                        onRequestClose={() => this.toggleAddTodoModal()}>
                     <AddListModal closeModal={() => this.toggleAddTodoModal()} addList={this.addList}/>
                 </Modal>
-                <View>
-                    <Text>User: {this.state.user.uid}</Text>
-                </View>
                 <View style={{flexDirection: "row"}}>
                     <View style={styles.divider}/>
                     <Text style={styles.title}>
-                        Todo <Text style={{fontWeight: "300", color: colors.blue}}>Lists</Text>
+                        Todo <Text style={{fontWeight: "300", color: colors.blue}}>next</Text>
                     </Text>
                     <View style={styles.divider}/>
                 </View>
@@ -89,9 +86,13 @@ export default class App extends React.Component {
                 </View>
 
                 <View style={{height: 275, paddingLeft: 32}}>
-                    <FlatList data={this.state.lists} keyExtractor={item => item.id.toString()} horizontal={true}
+                    <FlatList data={this.state.lists}
+                              keyExtractor={item => item.id.toString()}
+                              horizontal={true}
                               showHorizontalScrollIndicator={false}
-                              renderItem={({item}) => this.renderList(item)}/>
+                              renderItem={({item}) => this.renderList(item)}
+                              keyboardShouldPersistTaps={"always"}
+                    />
                 </View>
 
             </View>
