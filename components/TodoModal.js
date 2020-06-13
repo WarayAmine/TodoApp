@@ -22,10 +22,6 @@ export default class TodoModal extends Component {
         editMode: false
     }
 
-    ComponentDidMount() {
-
-    }
-
     toggleTodo = index => {
         let list = this.props.list;
         list.todos[index].completed = !list.todos[index].completed;
@@ -77,11 +73,15 @@ export default class TodoModal extends Component {
         const completedCount = list.todos.filter(todo => todo.completed).length;
 
         return (
-            <SafeAreaView style={styles.container}>
-                <TouchableOpacity style={{position: "absolute", top: 32, right: 32, zIndex: 10}}
-                                  onPress={this.props.closeModal}>
-                    <MaterialIcons name="close" size={24} color={colors.black}/>
-                </TouchableOpacity>
+            <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : null}>
+                {
+                    Platform.OS === "ios" ?
+                        <TouchableOpacity style={{position: "absolute", top: 32, right: 32, zIndex: 10}}
+                                          onPress={this.props.closeModal}>
+                            <MaterialIcons name="close" size={24} color={colors.black}/>
+                        </TouchableOpacity>
+                        : null
+                }
 
                 <View style={[styles.section, styles.header, {borderBottomColor: list.color}]}>
                     <View>
@@ -119,9 +119,7 @@ export default class TodoModal extends Component {
                     />
                 </View>
 
-                <KeyboardAvoidingView style={[styles.section, styles.footer]}
-                                      behavior={Platform.OS === "ios" ? "padding" : null}
-                >
+                <View style={[styles.section, styles.footer]}>
                     <TextInput style={[styles.input, {borderColor: list.color}]}
                                onChangeText={text => this.setState({newTodo: text})}
                                value={this.state.newTodo}/>
@@ -129,8 +127,8 @@ export default class TodoModal extends Component {
                                       onPress={() => this.addTodo()}>
                         <MaterialIcons name="add" size={16} color={colors.white}/>
                     </TouchableOpacity>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
+                </View>
+            </KeyboardAvoidingView>
         );
     }
 }
