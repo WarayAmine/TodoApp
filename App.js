@@ -85,7 +85,7 @@ export default class App extends React.Component {
                     <Text style={styles.add}>Add list</Text>
                 </View>
 
-                <View style={{height: 275, paddingLeft: 32}}>
+                <View style={{height: 275, paddingHorizontal: 16}}>
                     <FlatList data={this.state.lists}
                               keyExtractor={item => item.id.toString()}
                               horizontal={true}

@@ -10,14 +10,20 @@ import {
     View,
     Keyboard,
     Animated,
-    Platform
+    Platform, TouchableWithoutFeedback
 } from 'react-native';
 import {colors} from "../Colors";
-import {AntDesign, Ionicons} from '@expo/vector-icons';
+import {MaterialIcons} from '@expo/vector-icons';
 
 export default class TodoModal extends Component {
     state = {
-        newTodo: ""
+        newTodo: "",
+        newListName: this.props.list.name,
+        editMode: false
+    }
+
+    ComponentDidMount() {
+
     }
 
     toggleTodo = index => {
@@ -25,6 +31,17 @@ export default class TodoModal extends Component {
         list.todos[index].completed = !list.todos[index].completed;
 
         this.props.updateList(list);
+    }
+
+    toggleEditMode = (editMode) => {
+        this.setState({editMode: !this.state.editMode});
+        // editMode is false when we want to save the list's new name
+        if (!editMode) {
+            // only edit the name if it's not the same as the old one
+            if (this.state.newListName !== this.props.list.name) {
+                this.editListName();
+            }
+        }
     }
 
     addTodo = () => {
@@ -36,7 +53,6 @@ export default class TodoModal extends Component {
         }
 
         this.setState({newTodo: ""});
-        Keyboard.dismiss();
     }
 
     deleteTodo = index => {
@@ -46,8 +62,16 @@ export default class TodoModal extends Component {
         this.props.updateList(list);
     }
 
+    editListName = () => {
+        let list = this.props.list;
+        list.name = this.state.newListName;
+
+        this.props.updateList(list);
+    }
+
     render() {
         const list = this.props.list;
+        let newListName = this.state.newListName;
 
         const taskCount = list.todos.length;
         const completedCount = list.todos.filter(todo => todo.completed).length;
@@ -55,14 +79,26 @@ export default class TodoModal extends Component {
         return (
             <SafeAreaView style={styles.container}>
                 <TouchableOpacity style={{position: "absolute", top: 32, right: 32, zIndex: 10}}
-                                  onPress={this.props.closeModal}
-                >
-                    <AntDesign name="close" size={24} color={colors.black}/>
+                                  onPress={this.props.closeModal}>
+                    <MaterialIcons name="close" size={24} color={colors.black}/>
                 </TouchableOpacity>
 
                 <View style={[styles.section, styles.header, {borderBottomColor: list.color}]}>
                     <View>
-                        <Text style={styles.title}>{list.name}</Text>
+                        <View style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            paddingRight: 32
+                        }}>
+                        </View>
+                        <TouchableWithoutFeedback onPress={() => this.toggleEditMode(true)}>
+                            <TextInput style={styles.title}
+                                       value={newListName}
+                                       onChangeText={text => this.setState({newListName: text})}
+                                       autoFocus={this.state.editMode}
+                                       onSubmitEditing={() => this.toggleEditMode(false)}/>
+                        </TouchableWithoutFeedback>
                         <Text style={styles.taskCount}>
                             {completedCount} of {taskCount} tasks
                         </Text>
@@ -91,7 +127,7 @@ export default class TodoModal extends Component {
                                value={this.state.newTodo}/>
                     <TouchableOpacity style={[styles.addTodo, {backgroundColor: list.color}]}
                                       onPress={() => this.addTodo()}>
-                        <AntDesign name="plus" size={16} color={colors.white}/>
+                        <MaterialIcons name="add" size={16} color={colors.white}/>
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -108,9 +144,9 @@ function TodoItem(props) {
         <View style={[styles.todoContainer, {paddingHorizontal: 32}]}>
             <View style={styles.todoContainer}>
                 <TouchableOpacity onPress={() => props.toggleTodo(index)}>
-                    <Ionicons name={todo.completed ? "ios-square" : "ios-square-outline"}
-                              size={24} color={colors.gray}
-                              style={{width: 32}}
+                    <MaterialIcons name={todo.completed ? "check-box" : "check-box-outline-blank"}
+                                   size={22} color={todo.completed ? colors.gray : colors.black}
+                                   style={{width: 32}}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => toggleDeleteIcon(!deleteIconIsVisible)}
@@ -131,7 +167,7 @@ function TodoItem(props) {
                         props.deleteTodo(index);
                         toggleDeleteIcon(!deleteIconIsVisible);
                     }}>
-                        <AntDesign name="close" size={24} color={colors.gray}/>
+                        <MaterialIcons name="close" size={24} color={colors.black}/>
                     </TouchableOpacity>
                 }
             </View>
