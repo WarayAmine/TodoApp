@@ -40,7 +40,7 @@ export default class Home extends React.Component {
     }
 
     renderList = list => {
-        return <TodoList list={list} updateList={this.updateList}/>
+        return <TodoList list={list} updateList={this.updateList} deleteList={this.deleteList}/>
     }
 
     addList = list => {
@@ -53,6 +53,10 @@ export default class Home extends React.Component {
 
     updateList = list => {
         this.state.firebase.updateList(list);
+    }
+
+    deleteList = listId => {
+        this.state.firebase.deleteList(listId);
     }
 
     render() {
@@ -93,6 +97,10 @@ export default class Home extends React.Component {
                               renderItem={({item}) => this.renderList(item)}
                               keyboardShouldPersistTaps={"always"}
                     />
+                </View>
+
+                <View style={{marginVertical: 8}}>
+                    <Text style={{color: colors.lightGray}}>Hold an item to delete</Text>
                 </View>
 
             </View>

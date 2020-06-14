@@ -66,6 +66,12 @@ class Fire {
         ref.doc(list.id).update(list);
     }
 
+    deleteList(listId) {
+        let ref = this.ref;
+
+        ref.doc(listId).delete();
+    }
+
     detach() {
         this.unsubscribe();
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import {Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Modal, StyleSheet, Text, TouchableOpacity, View, Alert} from "react-native";
 import {colors} from '../Colors';
 import TodoModal from "./TodoModal";
 
@@ -10,6 +10,29 @@ export default class TodoList extends React.Component {
 
     toggleListModal() {
         this.setState({showListVisible: !this.state.showListVisible});
+    }
+
+    deleteListAlert = () => {
+        const list = this.props.list;
+
+        Alert.alert(
+            "Deleting " + list.name,
+            "Do you really want to delete this list ?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => {
+
+                    },
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    onPress: () => this.props.deleteList(list.id)
+                }
+            ],
+            {cancelable: false}
+        );
     }
 
     render() {
@@ -28,7 +51,9 @@ export default class TodoList extends React.Component {
                                updateList={this.props.updateList}/>
                 </Modal>
                 <TouchableOpacity style={[styles.listContainer, {backgroundColor: list.color}]}
-                                  onPress={() => this.toggleListModal()}>
+                                  onPress={() => this.toggleListModal()}
+                                  onLongPress={() => this.deleteListAlert()}
+                >
                     <Text style={styles.listTitle} numberOfLines={1}>
                         {list.name}
                     </Text>
