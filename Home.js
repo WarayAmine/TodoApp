@@ -102,7 +102,9 @@ export default class Home extends React.Component {
                 <View style={{marginVertical: 8}}>
                     <Text style={{color: colors.lightGray}}>Hold an item to delete</Text>
                 </View>
-
+                <View style={{marginVertical: 8}}>
+                    <Text style={{color: colors.lightGray}}>{this.state.firebase.userId}</Text>
+                </View>
             </View>
         );
     }

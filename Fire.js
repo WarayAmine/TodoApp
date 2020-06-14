@@ -41,7 +41,7 @@ class Fire {
     }
 
     getLists(callback) {
-        let ref = this.ref.orderBy('name');
+        let ref = this.ref;
 
         this.unsubscribe = ref.onSnapshot(snapShot => {
             let lists = [];
